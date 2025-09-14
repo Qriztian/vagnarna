@@ -1,0 +1,54 @@
+type Congregation @collection(name: "congregations") {
+  id: ID!
+  name: String!
+  adminCode: String!
+  publisherCodes: [String!]!
+  totalCarts: Int!
+  settings: CongregationSettings!
+}
+
+type CongregationSettings {
+  openingHours: [OpeningHour!]!
+  slotMinutes: Int!
+}
+
+type OpeningHour {
+  weekday: Int! # 0=Sun ... 6=Sat
+  start: String! # HH:mm
+  end: String! # HH:mm
+}
+
+type CartLocation @collection(name: "locations") {
+  id: ID!
+  congregationId: ID!
+  name: String!
+  address: String!
+}
+
+type TimeSlot @collection(name: "timeslots") {
+  id: ID!
+  congregationId: ID!
+  weekday: Int!
+  start: String!
+  end: String!
+}
+
+type Booking @collection(name: "bookings") {
+  id: ID!
+  congregationId: ID!
+  locationId: ID!
+  publisherCode: String!
+  date: String! # YYYY-MM-DD
+  timeSlotId: ID!
+  createdAt: Timestamp!
+}
+
+type SpecialEvent @collection(name: "events") {
+  id: ID!
+  congregationId: ID!
+  name: String!
+  locationId: ID!
+  date: String!
+  start: String!
+  end: String!
+}
