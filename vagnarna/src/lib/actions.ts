@@ -88,3 +88,50 @@ export async function adminSetupCreateCongregation(formData: FormData) {
   redirect("/admin/dashboard");
 }
 
+export async function createLocation(formData: FormData) {
+  const name = String(formData.get("name") || "").trim();
+  const address = String(formData.get("address") || "").trim();
+  const description = String(formData.get("description") || "").trim();
+  
+  if (!name || !address) return { error: "Namn och adress krävs." } as const;
+
+  // Hämta veckoschema från formuläret
+  const weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+  const schedule: Record<string, { enabled: boolean; startTime: string; endTime: string }> = {};
+  
+  weekdays.forEach(day => {
+    const enabled = formData.get(`${day}-enabled`) === "on";
+    const startTime = String(formData.get(`${day}-start`) || "09:00");
+    const endTime = String(formData.get(`${day}-end`) || "17:00");
+    
+    schedule[day] = { enabled, startTime, endTime };
+  });
+
+  // Säkerställ att söndagen är förifylld som tillgänglig
+  if (!schedule.sunday.enabled) {
+    schedule.sunday.enabled = true;
+    schedule.sunday.startTime = schedule.sunday.startTime || "09:00";
+    schedule.sunday.endTime = schedule.sunday.endTime || "17:00";
+  }
+
+  const db = getDb();
+  const ref = await db.collection("locations").add({
+    name,
+    address,
+    description,
+    schedule,
+    createdAt: new Date(),
+  });
+
+  return { id: ref.id };
+}
+
+export async function getLocations() {
+  const db = getDb();
+  const snapshot = await db.collection("locations").orderBy("name").get();
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+}
+
