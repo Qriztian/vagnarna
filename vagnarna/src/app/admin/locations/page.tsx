@@ -9,13 +9,13 @@ import { Separator } from "@/components/ui/separator";
 import { createLocation } from "@/lib/actions";
 
 const weekdays = [
+  { key: "sunday", label: "Söndag" }, // Sunday moved to first position
   { key: "monday", label: "Måndag" },
   { key: "tuesday", label: "Tisdag" },
   { key: "wednesday", label: "Onsdag" },
   { key: "thursday", label: "Torsdag" },
   { key: "friday", label: "Fredag" },
   { key: "saturday", label: "Lördag" },
-  { key: "sunday", label: "Söndag" },
 ];
 
 export default function AdminLocationsPage() {
@@ -80,6 +80,7 @@ export default function AdminLocationsPage() {
                         name={`${day.key}-enabled`}
                         className="rounded border-gray-300"
                         defaultChecked={day.key === "sunday"} // Söndagen är förifylld
+                        disabled={day.key === "sunday"} // Söndagen kan inte avmarkeras
                       />
                     </div>
                     <div className="flex items-center space-x-2">
@@ -106,7 +107,7 @@ export default function AdminLocationsPage() {
                 ))}
               </div>
               <p className="text-sm text-muted-foreground mt-2">
-                Söndagen är automatiskt aktiverad som standard.
+                Söndagen är automatiskt aktiverad som standard och kan inte avmarkeras.
               </p>
             </div>
 
