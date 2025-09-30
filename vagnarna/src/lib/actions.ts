@@ -1,7 +1,7 @@
 "use server";
 
 import { getDb } from "@/lib/firebase-admin";
-import { createAdminSession, destroyAdminSession } from "@/lib/session";
+import { createAdminSession, destroyAdminSession, readAdminSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 
 export async function verifyPublisherCode(publisherCode: string) {
@@ -29,6 +29,7 @@ export async function createBooking(params: {
   const db = getDb();
   const ref = await db.collection("bookings").add({
     ...params,
+    congregationId: params.congregationId, // SÄKERHET: Säkerställ att congregationId sparas
     createdAt: now,
   });
   return { id: ref.id };
@@ -95,6 +96,10 @@ export async function createLocation(formData: FormData) {
   
   if (!name || !address) return { error: "Namn och adress krävs." } as const;
 
+  // Kontrollera att användaren är inloggad som admin
+  const session = await readAdminSession();
+  if (!session) return { error: "Du måste vara inloggad som admin." } as const;
+
   // Hämta veckoschema från formuläret
   const weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
   const schedule: Record<string, { enabled: boolean; startTime: string; endTime: string }> = {};
@@ -120,6 +125,7 @@ export async function createLocation(formData: FormData) {
     address,
     description,
     schedule,
+    congregationId: session.congregationId, // SÄKERHET: Koppla till rätt församling
     createdAt: new Date(),
   });
 
@@ -127,8 +133,33 @@ export async function createLocation(formData: FormData) {
 }
 
 export async function getLocations() {
+  // Kontrollera att användaren är inloggad som admin
+  const session = await readAdminSession();
+  if (!session) return [];
+
   const db = getDb();
-  const snapshot = await db.collection("locations").orderBy("name").get();
+  const snapshot = await db
+    .collection("locations")
+    .where("congregationId", "==", session.congregationId)
+    .orderBy("name")
+    .get();
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+}
+
+export async function getBookings() {
+  // Kontrollera att användaren är inloggad som admin
+  const session = await readAdminSession();
+  if (!session) return [];
+
+  const db = getDb();
+  const snapshot = await db
+    .collection("bookings")
+    .where("congregationId", "==", session.congregationId)
+    .orderBy("date", "desc")
+    .get();
   return snapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data(),

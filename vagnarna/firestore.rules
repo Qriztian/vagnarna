@@ -1,0 +1,27 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Congregations - only authenticated users can read/write
+    match /congregations/{congregationId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Locations - only accessible by the congregation that owns them
+    match /locations/{locationId} {
+      allow read, write: if request.auth != null && 
+        resource.data.congregationId == request.auth.token.congregationId;
+    }
+    
+    // Bookings - only accessible by the congregation that owns them
+    match /bookings/{bookingId} {
+      allow read, write: if request.auth != null && 
+        resource.data.congregationId == request.auth.token.congregationId;
+    }
+    
+    // Publisher codes - only accessible by the congregation that owns them
+    match /publisherCodes/{codeId} {
+      allow read, write: if request.auth != null && 
+        resource.data.congregationId == request.auth.token.congregationId;
+    }
+  }
+}
