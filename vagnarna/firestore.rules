@@ -7,6 +7,12 @@ service cloud.firestore {
       allow write: if request.auth != null;
     }
     
+    // Preachers - only accessible by the congregation that owns them
+    match /preachers/{preacherId} {
+      allow read, write: if request.auth != null && 
+        resource.data.congregationId == request.auth.token.congregationId;
+    }
+    
     // Locations - only accessible by the congregation that owns them
     match /locations/{locationId} {
       allow read, write: if request.auth != null && 
