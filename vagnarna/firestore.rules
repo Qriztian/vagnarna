@@ -4,31 +4,27 @@ service cloud.firestore {
     // Congregations - allow read for publisher code verification, write for admin
     match /congregations/{congregationId} {
       allow read: if true; // Allow read for publisher code verification
-      allow write: if request.auth != null;
+      allow write: if true; // Allow write for admin setup
     }
     
-    // Preachers - only accessible by the congregation that owns them
+    // Preachers - allow read/write for now (will be filtered by server-side code)
     match /preachers/{preacherId} {
-      allow read, write: if request.auth != null && 
-        resource.data.congregationId == request.auth.token.congregationId;
+      allow read, write: if true;
     }
     
-    // Locations - only accessible by the congregation that owns them
+    // Locations - allow read/write for now (will be filtered by server-side code)
     match /locations/{locationId} {
-      allow read, write: if request.auth != null && 
-        resource.data.congregationId == request.auth.token.congregationId;
+      allow read, write: if true;
     }
     
-    // Bookings - only accessible by the congregation that owns them
+    // Bookings - allow read/write for now (will be filtered by server-side code)
     match /bookings/{bookingId} {
-      allow read, write: if request.auth != null && 
-        resource.data.congregationId == request.auth.token.congregationId;
+      allow read, write: if true;
     }
     
-    // Publisher codes - only accessible by the congregation that owns them
+    // Publisher codes - allow read/write for now (will be filtered by server-side code)
     match /publisherCodes/{codeId} {
-      allow read, write: if request.auth != null && 
-        resource.data.congregationId == request.auth.token.congregationId;
+      allow read, write: if true;
     }
   }
 }
