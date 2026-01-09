@@ -47,5 +47,8 @@
   },
   "overrides": {
     "next": "15.5.7"
+  },
+  "resolutions": {
+    "next": "15.5.7"
   }
 }
