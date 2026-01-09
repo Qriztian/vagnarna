@@ -1,5 +1,6 @@
 # Firebase App Hosting configuration for Next.js
 # https://firebase.google.com/docs/app-hosting
+# Updated: 2026-01-09
 
 runConfig:
   runtime: nodejs20
